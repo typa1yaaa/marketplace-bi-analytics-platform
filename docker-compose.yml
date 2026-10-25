@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${PGUSER:-mp}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-mp}
+      POSTGRES_DB: ${PGDATABASE:-marketplace}
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-mp} -d ${PGDATABASE:-marketplace}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  superset:
+    profiles: ["bi"]
+    build: ./superset
+    depends_on:
+      postgres: {condition: service_healthy}
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-change-me-to-a-long-random-string}
+      PGUSER: ${PGUSER:-mp}
+      PGPASSWORD: ${PGPASSWORD:-mp}
+      PGDATABASE: ${PGDATABASE:-marketplace}
+    ports: ["8088:8088"]
+    volumes: [superset_home:/app/superset_home]
+    command: ["/bin/sh", "-c", "/app/init.sh && /usr/bin/run-server.sh"]
+
+volumes:
+  pgdata:
+  superset_home:
