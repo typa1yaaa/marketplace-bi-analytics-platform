@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: Data exactly as loaded from the source systems.
+    tables:
+      - name: users
+        columns:
+          - name: user_id
+            data_tests: [unique, not_null]
+      - name: listings
+        columns:
+          - name: listing_id
+            data_tests: [unique, not_null]
+      - name: events
+        description: Event stream. Duplicates are possible and are removed in staging.
+        columns:
+          - name: event_id
+            data_tests:
+              - not_null
+              - unique:
+                  config:
+                    severity: warn
+      - name: deals
+        columns:
+          - name: deal_id
+            data_tests: [unique, not_null]
