@@ -1,0 +1,9 @@
+data/*.csv
+__pycache__/
+.pytest_cache/
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+.venv/
+.env
+dbt/.user.yml
