@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: stg_events
+    description: Deduplicated events enriched with listing category and region.
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: event_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: [impression, view, contact]}
+      - name: platform
+        data_tests:
+          - accepted_values:
+              arguments: {values: [android, ios, web]}
+      - name: listing_id
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_listings'), field: listing_id}
+  - name: stg_deals
+    columns:
+      - name: deal_id
+        data_tests: [unique, not_null]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments: {values: [completed, cancelled, refunded]}
+      - name: contact_event_id
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_events'), field: event_id}
+      - name: amount
+        data_tests: [not_null]
+  - name: fct_events_daily
+    description: Funnel fact, grain date x category x region x platform.
+    columns:
+      - name: event_date
+        data_tests: [not_null]
+      - name: category
+        data_tests: [not_null]
+  - name: mart_kpi_daily
+    columns:
+      - name: event_date
+        data_tests: [unique, not_null]
+  - name: mart_metric_anomalies
+    columns:
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments: {values: [ok, anomaly]}
+  - name: mart_data_quality
+    columns:
+      - name: event_date
+        data_tests: [unique, not_null]
